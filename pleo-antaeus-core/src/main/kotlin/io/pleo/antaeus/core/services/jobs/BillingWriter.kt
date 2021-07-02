@@ -20,7 +20,7 @@ class BillingWriter(private val invoiceService: InvoiceService, private val bill
                     try {
                         billingService.processPayment(invoice)
                     } catch (exception: MissingFundsException) {
-                        //not fatale enough for job to fail. Error/Notice should be raised however
+                        //not fatal enough for job to fail. Error/Notice should be raised however
                         logger.error { "Error processing payment for invoice '${invoice.id}. ${exception.message}" }
                     }
                 }
