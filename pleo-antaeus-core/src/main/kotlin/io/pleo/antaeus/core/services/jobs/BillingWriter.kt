@@ -1,5 +1,6 @@
-package io.pleo.antaeus.app.batch
+package io.pleo.antaeus.core.services.jobs
 
+import io.pleo.antaeus.core.exceptions.MissingFundsException
 import io.pleo.antaeus.core.services.BillingService
 import io.pleo.antaeus.core.services.InvoiceService
 import mu.KotlinLogging
@@ -16,7 +17,12 @@ class BillingWriter(private val invoiceService: InvoiceService, private val bill
                 val invoice = invoiceService.fetch(invoiceIdRecord.payload)
                 if (!invoice.isPaid()) {
                     logger.info { "Processing invoice '${invoice.id}'" }
-                    billingService.processPayment(invoice)
+                    try {
+                        billingService.processPayment(invoice)
+                    } catch (exception: MissingFundsException) {
+                        //not fatale enough for job to fail. Error/Notice should be raised however
+                        logger.error { "Error processing payment for invoice '${invoice.id}. ${exception.message}" }
+                    }
                 }
                 else {
                     logger.error { "Skipping paid invoice '${invoice.id}'" }

@@ -10,15 +10,19 @@ import io.pleo.antaeus.core.exceptions.EntityNotFoundException
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
 import io.pleo.antaeus.core.services.SchemaService
+import io.pleo.antaeus.core.services.jobs.JobService
 import mu.KotlinLogging
+import org.jeasy.batch.core.job.JobExecutor
 
 private val logger = KotlinLogging.logger {}
 private val thisFile: () -> Unit = {}
 
 class AntaeusRest(
-    private val invoiceService: InvoiceService,
-    private val customerService: CustomerService,
-    private val schemaService: SchemaService
+        private val invoiceService: InvoiceService,
+        private val customerService: CustomerService,
+        private val schemaService: SchemaService,
+        private val jobExecutor: JobExecutor,
+        private val jobService: JobService
 ) : Runnable {
 
     override fun run() {
@@ -65,6 +69,18 @@ class AntaeusRest(
                         // URL: /rest/v1/invoices/{:id}
                         get(":id") {
                             it.json(invoiceService.fetch(it.pathParam("id").toInt()))
+                        }
+
+                        path("payment")
+                        {
+                            get("pending") {
+                                it.json(invoiceService.fetchPendingInvoiceIds())
+                            }
+
+                            post("cashout") {
+                                val jobReport = jobExecutor.execute(jobService.getPaymentProcessingBatchJob())
+                                it.json(jobReport.toString())
+                            }
                         }
                     }
 

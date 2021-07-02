@@ -8,20 +8,17 @@
 package io.pleo.antaeus.app
 
 import getPaymentProvider
-import io.pleo.antaeus.app.batch.BillingWriter
 import io.pleo.antaeus.core.services.BillingService
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
 import io.pleo.antaeus.core.services.SchemaService
+import io.pleo.antaeus.core.services.jobs.JobService
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.data.CustomerTable
 import io.pleo.antaeus.data.InvoiceTable
 import io.pleo.antaeus.rest.AntaeusRest
 import mu.KotlinLogging
-import org.jeasy.batch.core.job.JobBuilder
 import org.jeasy.batch.core.job.JobExecutor
-import org.jeasy.batch.core.job.JobReport
-import org.jeasy.batch.core.reader.IterableRecordReader
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
@@ -31,9 +28,11 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import setupInitialData
 import java.io.File
 import java.sql.Connection
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
+private val scheduler = Executors.newScheduledThreadPool(1)
 private val logger = KotlinLogging.logger {}
-
 
 fun main() {
     // The tables to create in the database.
@@ -70,31 +69,27 @@ fun main() {
     // Create core services
     val invoiceService = InvoiceService(dal = dal)
     val customerService = CustomerService(dal = dal)
+
+    //util services
     val schemaService = SchemaService(dal = dal)
 
     // This is _your_ billing service to be included where you see fit
     val billingService = BillingService(paymentProvider, customerService, invoiceService)
-
-    val iterableRecordReader = IterableRecordReader(invoiceService.fetchPendingInvoices())
-    val billingWriter = BillingWriter(invoiceService, billingService)
-
-    val tempJob = JobBuilder<Int, Int>()
-            .batchSize(50)
-            .enableBatchScanning(true)
-            .reader(iterableRecordReader)
-            .writer(billingWriter)
-            .build()
+    val jobService = JobService(invoiceService, billingService)
 
     val jobExecutor = JobExecutor()
-    val report: JobReport = jobExecutor.execute(tempJob)
 
-    logger.info { report }
-    jobExecutor.shutdown()
+    //Retry Pending invoices after a delay
+    scheduler.scheduleAtFixedRate({ jobExecutor.execute(jobService.getPaymentProcessingBatchJob()) }, 60, 45, TimeUnit.SECONDS)
 
     // Create REST web service
     AntaeusRest(
             invoiceService = invoiceService,
             customerService = customerService,
-            schemaService = schemaService
+            schemaService = schemaService,
+            jobService = jobService,
+            jobExecutor = jobExecutor
     ).run()
+
+//    jobExecutor.shutdown()
 }

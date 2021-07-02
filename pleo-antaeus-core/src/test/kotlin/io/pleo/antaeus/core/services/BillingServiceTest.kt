@@ -87,7 +87,7 @@ internal class BillingServiceTest
     }
 
     @Test
-    fun `cannot charge a frenchie in usd`()
+    fun `cannot charge with invalid currency`()
     {
         val invoice = Invoice(1, euCustomer.id, Money(BigDecimal.valueOf(20000), Currency.USD), InvoiceStatus.PENDING)
 
@@ -101,7 +101,7 @@ internal class BillingServiceTest
     }
 
     @Test
-    fun `payment could not be processed du to missing funds`()
+    fun `payment could not be processed due to missing funds`()
     {
         val invoice = getValidPendingInvoice(insolventUsdCustomer)
 
