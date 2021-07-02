@@ -7,6 +7,7 @@ package io.pleo.antaeus.core.services
 import io.pleo.antaeus.core.exceptions.InvoiceNotFoundException
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.models.Invoice
+import io.pleo.antaeus.models.InvoiceStatus
 
 class InvoiceService(private val dal: AntaeusDal) {
     fun fetchAll(): List<Invoice> {
@@ -17,8 +18,8 @@ class InvoiceService(private val dal: AntaeusDal) {
         return dal.fetchInvoice(id) ?: throw InvoiceNotFoundException(id)
     }
 
-    fun payInvoice(invoice: Invoice) {
-        return dal.payInvoice(invoice)
+    fun updatePaymentStatus(invoice: Invoice, status: InvoiceStatus) {
+        return dal.updatePaymentStatus(invoice, status)
     }
 
     fun fetchPendingInvoiceIds(): List<Int> {

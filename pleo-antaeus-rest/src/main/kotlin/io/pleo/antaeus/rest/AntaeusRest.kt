@@ -9,7 +9,7 @@ import io.javalin.apibuilder.ApiBuilder.*
 import io.pleo.antaeus.core.exceptions.EntityNotFoundException
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
-import io.pleo.antaeus.core.services.SchemaService
+import io.pleo.antaeus.core.services.TestDataUtils
 import io.pleo.antaeus.core.services.jobs.JobService
 import mu.KotlinLogging
 import org.jeasy.batch.core.job.JobExecutor
@@ -20,7 +20,7 @@ private val thisFile: () -> Unit = {}
 class AntaeusRest(
         private val invoiceService: InvoiceService,
         private val customerService: CustomerService,
-        private val schemaService: SchemaService,
+        private val testDataUtils: TestDataUtils,
         private val jobExecutor: JobExecutor,
         private val jobService: JobService
 ) : Runnable {
@@ -98,11 +98,11 @@ class AntaeusRest(
 
                     path("schema") {
                         post("reset") {
-                            schemaService.reset()
+                            testDataUtils.reset()
                         }
 
                         post("setup") {
-                            schemaService.createFakeData()
+                            testDataUtils.createFakeData()
                         }
                     }
                 }

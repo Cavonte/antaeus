@@ -7,7 +7,7 @@ import io.pleo.antaeus.models.Money
 import java.math.BigDecimal
 import kotlin.random.Random
 
-class SchemaService(private val dal: AntaeusDal) {
+class TestDataUtils(private val dal: AntaeusDal) {
     fun reset() {
         dal.reset()
     }

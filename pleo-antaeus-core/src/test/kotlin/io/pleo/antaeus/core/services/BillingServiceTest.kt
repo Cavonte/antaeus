@@ -42,7 +42,7 @@ internal class BillingServiceTest
     }
 
     private val invoiceServiceMock = mockk<InvoiceService> {
-        every { payInvoice(getValidPendingInvoice(solventUsCustomer)) } answers { }
+        every { updatePaymentStatus(getValidPendingInvoice(solventUsCustomer), InvoiceStatus.PAID) } answers { }
     }
 
     private val billingService = BillingService(paymentServiceMock, customerServiceMock, invoiceServiceMock)
@@ -56,7 +56,7 @@ internal class BillingServiceTest
 
         verify { customerServiceMock.fetch(solventUsCustomer.id) }
         verify { paymentServiceMock.charge(invoice) }
-        verify { invoiceServiceMock.payInvoice(invoice) }
+        verify { invoiceServiceMock.updatePaymentStatus(invoice, InvoiceStatus.PAID) }
     }
 
     @Test
@@ -69,7 +69,7 @@ internal class BillingServiceTest
         }
         verify { customerServiceMock.fetch(missingCustomer.id) }
         verify(exactly = 0) { paymentServiceMock.charge(invoice) }
-        verify(exactly = 0) { invoiceServiceMock.payInvoice(invoice) }
+        verify(exactly = 0) { invoiceServiceMock.updatePaymentStatus(invoice, InvoiceStatus.PAID) }
     }
 
     @Test
@@ -83,7 +83,7 @@ internal class BillingServiceTest
 
         verify { customerServiceMock.fetch(secondMissingCustomer.id) }
         verify { paymentServiceMock.charge(invoice) }
-        verify(exactly = 0) { invoiceServiceMock.payInvoice(invoice) }
+        verify(exactly = 0) { invoiceServiceMock.updatePaymentStatus(invoice, InvoiceStatus.PAID) }
     }
 
     @Test
@@ -91,13 +91,12 @@ internal class BillingServiceTest
     {
         val invoice = Invoice(1, euCustomer.id, Money(BigDecimal.valueOf(20000), Currency.USD), InvoiceStatus.PENDING)
 
-
         assertThrows<CurrencyMismatchException> {
             billingService.processPayment(invoice)
         }
         verify { customerServiceMock.fetch(euCustomer.id) }
         verify(exactly = 0) { paymentServiceMock.charge(invoice) }
-        verify(exactly = 0) { invoiceServiceMock.payInvoice(invoice) }
+        verify(exactly = 0) { invoiceServiceMock.updatePaymentStatus(invoice, InvoiceStatus.PAID) }
     }
 
     @Test
@@ -111,7 +110,7 @@ internal class BillingServiceTest
 
         verify { customerServiceMock.fetch(insolventUsdCustomer.id) }
         verify { paymentServiceMock.charge(invoice) }
-        verify(exactly = 0) { invoiceServiceMock.payInvoice(invoice) }
+        verify(exactly = 0) { invoiceServiceMock.updatePaymentStatus(invoice, InvoiceStatus.PAID) }
     }
 
     @Test
@@ -125,7 +124,7 @@ internal class BillingServiceTest
 
         verify { customerServiceMock.fetch(solarCustomer.id) }
         verify { paymentServiceMock.charge(invoice) }
-        verify(exactly = 0) { invoiceServiceMock.payInvoice(invoice) }
+        verify(exactly = 0) { invoiceServiceMock.updatePaymentStatus(invoice, InvoiceStatus.PAID) }
     }
 
     private fun getValidPendingInvoice(customer: Customer): Invoice

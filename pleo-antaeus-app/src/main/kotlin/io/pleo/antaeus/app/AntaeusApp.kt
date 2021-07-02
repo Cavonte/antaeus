@@ -11,7 +11,7 @@ import getPaymentProvider
 import io.pleo.antaeus.core.services.BillingService
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
-import io.pleo.antaeus.core.services.SchemaService
+import io.pleo.antaeus.core.services.TestDataUtils
 import io.pleo.antaeus.core.services.jobs.JobService
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.data.CustomerTable
@@ -38,8 +38,7 @@ fun main() {
     // The tables to create in the database.
     val tables = arrayOf(InvoiceTable, CustomerTable)
 
-//    val dbFile: File = File.createTempFile("antaeus-db", ".sqlite")
-    val dbFile: File = File("C:\\Users\\Bruce\\temp.sqlite")
+    val dbFile: File = File.createTempFile("antaeus-db", ".sqlite")
     // Connect to the database and create the needed tables. Drop any existing data.
     val db = Database
             .connect(url = "jdbc:sqlite:${dbFile.absolutePath}",
@@ -70,26 +69,26 @@ fun main() {
     val invoiceService = InvoiceService(dal = dal)
     val customerService = CustomerService(dal = dal)
 
-    //util services
-    val schemaService = SchemaService(dal = dal)
+    //service to wipe and create fake data
+    val testDataUtils = TestDataUtils(dal = dal)
 
     // This is _your_ billing service to be included where you see fit
     val billingService = BillingService(paymentProvider, customerService, invoiceService)
-    val jobService = JobService(invoiceService, billingService)
 
+    //batch service and dependencies
+    val jobService = JobService(invoiceService, billingService)
     val jobExecutor = JobExecutor()
 
     //Retry Pending invoices after a delay
+    //Would normally be run once a month or more if failed invoices are to be retried
     scheduler.scheduleAtFixedRate({ jobExecutor.execute(jobService.getPaymentProcessingBatchJob()) }, 60, 45, TimeUnit.SECONDS)
 
     // Create REST web service
     AntaeusRest(
             invoiceService = invoiceService,
             customerService = customerService,
-            schemaService = schemaService,
+            testDataUtils = testDataUtils,
             jobService = jobService,
             jobExecutor = jobExecutor
     ).run()
-
-//    jobExecutor.shutdown()
 }

@@ -4,6 +4,7 @@ import io.pleo.antaeus.core.exceptions.CurrencyMismatchException
 import io.pleo.antaeus.core.exceptions.MissingFundsException
 import io.pleo.antaeus.core.external.PaymentProvider
 import io.pleo.antaeus.models.Invoice
+import io.pleo.antaeus.models.InvoiceStatus
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
@@ -21,9 +22,12 @@ class BillingService(
             throw MissingFundsException(invoice.id, customerId)
         }
 
-        invoiceService.payInvoice(invoice)
+        invoiceService.updatePaymentStatus(invoice, InvoiceStatus.PAID)
     }
 
+    /*
+    Validates customer exists and that the currencies match
+     */
     private fun getVettedCustomerId(invoice: Invoice): Int {
         val customer = customerService.fetch(invoice.customerId)
 
