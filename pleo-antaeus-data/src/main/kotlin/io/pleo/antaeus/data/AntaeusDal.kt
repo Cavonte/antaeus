@@ -94,4 +94,16 @@ class AntaeusDal(private val db: Database) {
                     }
         }
     }
+
+    fun reset()
+    {
+        val tables = arrayOf(InvoiceTable, CustomerTable)
+        return transaction(db) {
+                addLogger(StdOutSqlLogger)
+                // Drop all existing tables to ensure a clean slate on each run
+                SchemaUtils.drop(*tables)
+                // Create all tables
+                SchemaUtils.create(*tables)
+        }
+    }
 }

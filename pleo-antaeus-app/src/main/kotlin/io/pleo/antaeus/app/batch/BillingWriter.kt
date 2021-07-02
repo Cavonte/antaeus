@@ -15,11 +15,11 @@ class BillingWriter(private val invoiceService: InvoiceService, private val bill
             batch.forEach { invoiceIdRecord ->
                 val invoice = invoiceService.fetch(invoiceIdRecord.payload)
                 if (!invoice.isPaid()) {
-                    logger.info { "Processing invoice '${invoice.id}" }
+                    logger.info { "Processing invoice '${invoice.id}'" }
                     billingService.processPayment(invoice)
                 }
                 else {
-                    logger.error { "Skipping paid invoice '${invoice.id}" }
+                    logger.error { "Skipping paid invoice '${invoice.id}'" }
                 }
             }
         }
