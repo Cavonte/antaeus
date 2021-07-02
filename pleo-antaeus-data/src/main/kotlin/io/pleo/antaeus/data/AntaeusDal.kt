@@ -50,8 +50,7 @@ class AntaeusDal(private val db: Database) {
         return fetchInvoice(id)
     }
 
-    fun payInvoice(invoice: Invoice)
-    {
+    fun payInvoice(invoice: Invoice) {
         return transaction(db) {
             InvoiceTable.update({ InvoiceTable.id eq invoice.id }) {
                 it[status] = InvoiceStatus.PAID.toString()
@@ -85,5 +84,14 @@ class AntaeusDal(private val db: Database) {
         }
 
         return fetchCustomer(id)
+    }
+
+    fun fetchPendingInvoicesId(): List<Int> {
+        return transaction(db) {
+            InvoiceTable.slice(InvoiceTable.id).select { InvoiceTable.status eq InvoiceStatus.PENDING.toString() }
+                    .map {
+                        it[InvoiceTable.id]
+                    }
+        }
     }
 }
