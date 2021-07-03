@@ -7,6 +7,9 @@ import io.pleo.antaeus.models.Money
 import java.math.BigDecimal
 import kotlin.random.Random
 
+/**
+ * Util created to wipe and create fake data. Used to validate the endpoints and the schedule job
+ */
 class TestDataUtils(private val dal: AntaeusDal) {
     fun reset() {
         dal.reset()

@@ -51,9 +51,9 @@ so I don't have the 10 trillion invoices in memory.
 #### Bonus
 Added a Github action file that could be added to the main repo. Next challengers can build and test their pr on their fork.
 
-####Challenge
+#### Challenge
 This took me a days worth of work spread over three days.
-I spent a decent chunk of that time getting used to systems I had not used so far, Exposed, Easy Batch.
+I spent a decent chunk of that time getting used to systems I had not used so far, Exposed, Easy Batch, Mockk.
 _____________________________________________________________________________________________________
 _____________________________________________________________________________________________________
 _____________________________________________________________________________________________________

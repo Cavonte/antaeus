@@ -17,7 +17,6 @@ import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.data.CustomerTable
 import io.pleo.antaeus.data.InvoiceTable
 import io.pleo.antaeus.rest.AntaeusRest
-import mu.KotlinLogging
 import org.jeasy.batch.core.job.JobExecutor
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -32,7 +31,6 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 private val scheduler = Executors.newScheduledThreadPool(1)
-private val logger = KotlinLogging.logger {}
 
 fun main() {
     // The tables to create in the database.
@@ -91,4 +89,7 @@ fun main() {
             jobService = jobService,
             jobExecutor = jobExecutor
     ).run()
+
+    //job executor should be shut down when the apps shut down
+    //jobExecutor.shutdown()
 }
