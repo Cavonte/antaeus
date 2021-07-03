@@ -1,4 +1,4 @@
-##Proposed Solution
+## Proposed Solution
 
 Invoice processing does not need to be instant like other online operations or customer-facing features. It can be
 handled by a batching system like video processing or model training. The invoice processing job is to be run at a fixed schedule
@@ -7,11 +7,11 @@ i.e. First Day of the month.
 Alternatively added endpoints can be called to trigger the job.
 
 The core of the changes are in the pleo-antaeus-core/services module, and the main app in pleo-antaeus-app 
-   - BillingService receives, charges payments, and processes invoices. Handles edge cases and possible issues with currencies, invoices ,and customer.
+   - BillingService receives, charges payments, and processes invoices. Handles edge cases and possible issues with currencies, invoices, and customer.
    - JobService and BillingWriter are batch utilities that will process and use BillingService.
    - AnteusApp.kt initializes the additional services and sets on the job scheduling.
    
-###Why batch processing
+### Why batch processing
 [Batch processing](https://javaee.github.io/tutorial/batch-processing001.html) is better suited for processing large amounts of data periodically. 
 I think this is a good use case. Using a batch framework will give flexibility in handling the business logic, error handling,
 keeping track of errors, metrics, etc.
@@ -40,8 +40,8 @@ fun processPayment(invoice: Invoice)
 The billings service should work with a transaction system (e.g. Spring Transaction annotation) so that operations can be retried or rolled back.
 This is also important for the Batch Processing framework as incomplete jobs can be retried and completed. Jobs being processed can be rolled back or aborted if any concurrency issues arise.
 
-####Neat Easy batch features
-Easy Batch allows you to create custom readers, processors ,and writers. 
+#### Neat Easy batch features
+Easy Batch allows you to create custom readers, processors, and writers. 
 - With a custom processor, I could add additional business
 logic related to payment and pass the resulting data further into the job pipeline. Or implement a custom reader,
 so I don't have the 10 trillion invoices in memory.
@@ -53,7 +53,7 @@ Added a Github action file that could be added to the main repo. Next challenger
 
 #### Challenge
 This took me a days worth of work spread over three days.
-I spent a decent chunk of that time getting used to systems I had not used so far, Exposed, Easy Batch, Mockk.
+I spent a decent chunk of that time getting used to systems I had not used so far: Exposed, Easy Batch, Mockk.
 _____________________________________________________________________________________________________
 _____________________________________________________________________________________________________
 _____________________________________________________________________________________________________
