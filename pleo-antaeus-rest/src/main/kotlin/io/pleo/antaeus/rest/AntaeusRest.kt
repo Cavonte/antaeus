@@ -73,10 +73,14 @@ class AntaeusRest(
 
                         path("payment")
                         {
+                            // URL: /rest/v1/invoices/payment/pending
+                            // List all invoices id that are pending
                             get("pending") {
                                 it.json(invoiceService.fetchPendingInvoiceIds())
                             }
 
+                            // URL: /rest/v1/invoices/payment/cashout
+                            // Force a manual run of the the billing job
                             post("cashout") {
                                 val jobReport = jobExecutor.execute(jobService.getPaymentProcessingBatchJob())
                                 it.json(jobReport.toString())
@@ -97,10 +101,14 @@ class AntaeusRest(
                     }
 
                     path("schema") {
+                        // URL: /rest/v1/schema/reset
+                        // Drop all the tables
                         post("reset") {
                             testDataUtils.reset()
                         }
 
+                        // URL: /rest/v1/schema/setup
+                        // Populate file db with fake invoices
                         post("setup") {
                             testDataUtils.createFakeData()
                         }
